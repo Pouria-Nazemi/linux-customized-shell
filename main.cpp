@@ -15,8 +15,15 @@
 #include<readline/readline.h>
 #include<readline/history.h>
 
-#define clear() printf("\033[H\033[J")
 using namespace std;
+#define clear() printf("\033[H\033[J")
+#define MAXCOM 1000 // max number of letters to be supported
+#define MAXLIST 100 // max number of commands to be supported
+char inputString[MAXCOM], *parsedArgs[MAXLIST];
+//char* parsedArgsPiped[MAXLIST];
+
+// Function to take input
+int takeInput(char *str);
 
 void getFirstElement(string address);
 
@@ -30,29 +37,36 @@ void mostOccurring(string address);
 
 void LineNumber(string address);
 
-void showDir();
+string showDir();
 
 void init_shell();
 
+int filesCommands(char **parsed);
+
+void execArgs(char **parsed);
+
+void parseSpace(char *str, char **parsed);
+
+int ownCmdHandler(char **parsed);
+
+int processString(char *str, char **parsed);
+
 //---------------------------  Main Function --------------------------------------------------------
 int main() {
-    init_shell();
-    while (true) {
-        showDir();
-//         sleep(2);
+    int execFlag = 0;
+//    init_shell();
+    while (1) {
+        if (!takeInput(inputString))
+            continue;
+        // process
+        execFlag = processString(inputString, parsedArgs);
+        if (execFlag == 1)
+            execArgs(parsedArgs);
 
-        //---------- Ali Methods: ----------
-//         removeSpaces("text.txt");
-//         mostOccurring("text.txt");
-//         LineNumber("text.txt");
-
-        //---------- Pouria Methods: ----------
-//        getFirstElement("xyz.txt");
-//        getTenFirstLine("text.txt");
-//        uncommentLines("text.txt");
-
-        break;
+//        if (execFlag == 2)
+//            execArgsPiped(parsedArgs, parsedArgsPiped);
     }
+    return 0;
 }
 
 
@@ -68,10 +82,11 @@ void init_shell() {
     clear();
 }
 
-void showDir() {
+string showDir() {
     char cwd[1024];
     getcwd(cwd, sizeof(cwd));
-    cout << "➜ " << cwd << endl;
+    return (cwd);
+//    cout << cwd << endl;
 }
 
 void removeSpaces(string address) {
@@ -185,6 +200,19 @@ void getTenFirstLine(string address) {
     }
 }
 
+int takeInput(char *str) {
+    char buf[MAXCOM];
+    cout << endl << ">>>" << showDir() << " ";
+    cin >> buf;
+    if (strlen(buf) != 0) {
+//         add_history(buf);
+        strcpy(str, buf);
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 void uncommentLines(string address) {
     fstream newfile;
     newfile.open(address, ios::in);
@@ -198,3 +226,167 @@ void uncommentLines(string address) {
         newfile.close();
     }
 }
+
+int fileExistence(char *dir) {
+    ifstream ifile;
+    ifile.open(dir);
+    if (ifile) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int filesCommands(char **parsed)
+{
+    int NoOfFilesCommands = 6, i, switchOwnArg = 0;
+    char *ListOfFilesCommands[NoOfFilesCommands];
+
+    ListOfFilesCommands[0] = "a"; //first Element
+    ListOfFilesCommands[1] = "b"; // most occurrence
+    ListOfFilesCommands[2] = "c"; // remove empty spaces
+    ListOfFilesCommands[3] = "d"; // uncommented files
+    ListOfFilesCommands[4] = "e"; // number of lines
+    ListOfFilesCommands[5] = "f"; // show first 10 line
+    int detected = 0;
+    for (i = 0; i < NoOfFilesCommands; i++) {
+        if (strcmp(parsed[0], ListOfFilesCommands[i]) == 0) {
+            switchOwnArg = i + 1;
+            detected = 1;
+            break;
+        }
+    }
+    if (!detected) {
+        return 0;
+    }
+    cout << "file: " << parsed[1];
+    if (fileExistence(parsed[1])) {
+        switch (switchOwnArg) {
+            case 1:
+                getFirstElement(parsed[1]);
+                return 1;
+            case 2:
+                mostOccurring(parsed[1]);
+                return 1;
+            case 3:
+                removeSpaces(parsed[1]);
+                return 1;
+            case 4:
+                uncommentLines(parsed[1]);
+                return 1;
+            case 5:
+                LineNumber(parsed[1]);
+                return 1;
+            case 6:
+                getTenFirstLine(parsed[1]);
+                return 1;
+                return 0;
+        }
+    } else {
+        cout << "File doesn't Found!" << endl;
+    }
+}
+
+void execArgs(char **parsed) {
+    // Forking a child
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        printf("\nFailed forking child..");
+        return;
+    } else if (pid == 0) {
+        cout << parsed[0];
+        if (filesCommands(parsed)) {
+//            cout << "sddvsd";
+        } else if (execvp(parsed[0], parsed) < 0) {
+            printf("\nCould not execute command..");
+        } else {
+            cout << "command not found: " << parsed << endl;
+        }
+        exit(0);
+
+    } else {
+        // waiting for child to terminate
+        wait(NULL);
+        return;
+    }
+}
+
+void parseSpace(char *str, char **parsed) {
+    int i;
+
+    for (i = 0; i < MAXLIST; i++) {
+        parsed[i] = strsep(&str, " ");
+
+        if (parsed[i] == NULL)
+            break;
+        if (strlen(parsed[i]) == 0)
+            i--;
+    }
+}
+
+
+int ownCmdHandler(char** parsed) {
+    int NoOfOwnCmds = 4, i, switchOwnArg = 0;
+    char *ListOfOwnCmds[NoOfOwnCmds];
+    char *username;
+
+    ListOfOwnCmds[0] = "exit";
+    ListOfOwnCmds[1] = "cd";
+    ListOfOwnCmds[2] = "help";
+    ListOfOwnCmds[3] = "hello";
+
+    for (i = 0; i < NoOfOwnCmds; i++) {
+        if (strcmp(parsed[0], ListOfOwnCmds[i]) == 0) {
+            switchOwnArg = i + 1;
+            break;
+        }
+    }
+
+    switch (switchOwnArg) {
+        case 1:
+            printf("\nGoodbye\n");
+            exit(0);
+        case 2:
+            chdir(parsed[1]);
+            return 1;
+        case 3:
+//            openHelp();
+            return 1;
+        case 4:
+            username = getenv("USER");
+            printf("\nHello %s.\nMind that this is "
+                   "not a place to play around."
+                   "\nUse help to know more..\n",
+                   username);
+            return 1;
+        default:
+            break;
+    }
+    return 0;
+}
+
+int processString(char *str, char **parsed) {
+
+//    char* strpiped[2];
+//    int piped = 0;
+
+//    piped = parsePipe(str, strpiped);
+
+//    if (piped) {
+//        parseSpace(strpiped[0], parsed);
+//        parseSpace(strpiped[1], parsedpipe);
+//
+//    }
+//    else {
+
+    parseSpace(str, parsed);
+//    }
+
+    if (ownCmdHandler(parsed))
+        return 0;
+    else
+        return 1;
+}
+
+
