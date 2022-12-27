@@ -41,6 +41,9 @@ using namespace std;
 
 
 void init_shell() {
+    ofstream myF;
+    myF.open("History.txt", ios::out);
+    myF.close();
     clear();
     cout << "\n\n****************************************";
     cout << "*\n*\n*\n*\t\tPOAL SHELL\t\t";
@@ -147,7 +150,7 @@ void getFirstElement(string address) {
             cout << firstWord << endl;
         }
         newfile.close();
-    } else{
+    } else {
         cout << "Can't open '" << address << "'" << endl;
 
     }
@@ -197,6 +200,10 @@ int takeInput(char *str) {
 //    cout << typeid(buf).name() << endl;
 
     if (strlen(buf) != 0) {
+        ofstream myF;
+        myF.open("History.txt", ios::app);
+        myF << buf << endl;
+        myF.close();
 //        add_history(buf);
         strcpy(str, buf);
         return 0;
@@ -320,8 +327,14 @@ int ownCmdHandler(char **parsed) {
             int chdir_Status;
             chdir_Status = chdir(parsed[1]);
             if (chdir_Status == -1) {
-                cout << "cd: no such file or directory: " << parsed[1] << endl;
+                if (parsed[1] != NULL) {
+                    string varr = parsed[1];
+                    cout << "cd: no such file or directory: " << parsed[1] << endl;
+                } else{
+                    cout << "cd: no such file or directory" << endl;
+                }
             }
+
             return 1;
         default:
             break;
@@ -347,19 +360,21 @@ int parsePipe(char *str, char **strpiped) {
 
 void parseSpace(char *str, char **parsed) {
     int i;
-
-    for (i = 0; i < MAXLIST; i++) {
-        parsed[i] = strsep(&str, " ");
-
-        if (parsed[i] == NULL)
-            break;
-        if (strlen(parsed[i]) == 0)
-            i--;
+    string st = str;
+    if (st.rfind("cd", 0) == 0) {
+        parsed[0] = strsep(&str, " ");
+        parsed[1] = str;
+//        cout << "the command in cd" << endl;
+//        cout << parsed[0] << endl << parsed[1] << endl;
+    } else {
+        for (i = 0; i < MAXLIST; i++) {
+            parsed[i] = strsep(&str, " ");
+            if (parsed[i] == NULL)
+                break;
+            if (strlen(parsed[i]) == 0)
+                i--;
+        }
     }
-
-//    for (int j = 0; j < i; j++)
-//        cout << "Parsed [" << j << "]: " << parsed[j] << endl;
-//        cout << parsed<< endl;
 
 }
 
@@ -392,13 +407,13 @@ char *parsedArgsPiped[MAXLIST];
 int main() {
 
     int execFlag = 0;
-//    init_shell();
+    init_shell();
     while (true) {
         showDir();
         if (takeInput(inputString))
             continue;
 
-        execFlag = processString(inputString,parsedArgs, parsedArgsPiped);
+        execFlag = processString(inputString, parsedArgs, parsedArgsPiped);
 
         if (execFlag == 1)
             execArgs(parsedArgs);
