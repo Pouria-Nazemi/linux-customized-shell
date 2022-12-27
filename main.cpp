@@ -1,4 +1,6 @@
 #include <iostream>
+#include<stdio.h>
+#include<stdlib.h>
 #include <fstream>
 #include <string>
 #include <cstring>
@@ -6,68 +8,36 @@
 #include <algorithm>
 #include <sstream>
 #include <map>
-#include<stdio.h>
 #include<string.h>
-#include<stdlib.h>
 #include<unistd.h>
 #include<sys/types.h>
 #include<sys/wait.h>
 #include<readline/readline.h>
 #include<readline/history.h>
 
-using namespace std;
+#define MAXCOM 1000
+#define MAXLIST 100
+
 #define clear() printf("\033[H\033[J")
-#define MAXCOM 1000 // max number of letters to be supported
-#define MAXLIST 100 // max number of commands to be supported
-char inputString[MAXCOM], *parsedArgs[MAXLIST];
-//char* parsedArgsPiped[MAXLIST];
+using namespace std;
 
-// Function to take input
-int takeInput(char *str);
+//void getFirstElement(string address);
 
-void getFirstElement(string address);
-
-void getTenFirstLine(string address);
-
-void uncommentLines(string address);
-
-void removeSpaces(string address);
-
-void mostOccurring(string address);
-
-void LineNumber(string address);
-
-string showDir();
-
-void init_shell();
-
-int filesCommands(char **parsed);
-
-void execArgs(char **parsed);
-
-void parseSpace(char *str, char **parsed);
-
-int ownCmdHandler(char **parsed);
-
-int processString(char *str, char **parsed);
+//void getTenFirstLine(string address);
+//
+//void uncommentLines(string address);
+//
+//void removeSpaces(string address);
+//
+//void mostOccurring(string address);
+//
+//void lineNumber(string address);
+//
+//void showDir();
+//
+//void init_shell();
 
 //---------------------------  Main Function --------------------------------------------------------
-int main() {
-    int execFlag = 0;
-//    init_shell();
-    while (1) {
-        if (!takeInput(inputString))
-            continue;
-        // process
-        execFlag = processString(inputString, parsedArgs);
-        if (execFlag == 1)
-            execArgs(parsedArgs);
-
-//        if (execFlag == 2)
-//            execArgsPiped(parsedArgs, parsedArgsPiped);
-    }
-    return 0;
-}
 
 
 void init_shell() {
@@ -82,11 +52,10 @@ void init_shell() {
     clear();
 }
 
-string showDir() {
+void showDir() {
     char cwd[1024];
     getcwd(cwd, sizeof(cwd));
-    return (cwd);
-//    cout << cwd << endl;
+    cout << "\n➜ " << cwd << endl;
 }
 
 void removeSpaces(string address) {
@@ -113,7 +82,7 @@ void removeSpaces(string address) {
         cout << "allLines: " << allLines << endl;
         cout << "Done!" << endl;
     } else {
-        cout << "Can't open " << address << endl;
+        cout << "Can't open '" << address << "'" << endl;
     }
 }
 
@@ -145,11 +114,11 @@ void mostOccurring(string address) {
         cout << most_occurring->second << " times." << endl;
 
     } else {
-        cout << "Can't open " << address << endl;
+        cout << "Can't open '" << address << "'" << endl;
     }
 }
 
-void LineNumber(string address) {
+void lineNumber(string address) {
     int linec = 0;
     ifstream myF(address);
     string line;
@@ -178,6 +147,9 @@ void getFirstElement(string address) {
             cout << firstWord << endl;
         }
         newfile.close();
+    } else{
+        cout << "Can't open '" << address << "'" << endl;
+
     }
 }
 
@@ -200,19 +172,6 @@ void getTenFirstLine(string address) {
     }
 }
 
-int takeInput(char *str) {
-    char buf[MAXCOM];
-    cout << endl << ">>>" << showDir() << " ";
-    cin >> buf;
-    if (strlen(buf) != 0) {
-//         add_history(buf);
-        strcpy(str, buf);
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
 void uncommentLines(string address) {
     fstream newfile;
     newfile.open(address, ios::in);
@@ -227,63 +186,22 @@ void uncommentLines(string address) {
     }
 }
 
-int fileExistence(char *dir) {
-    ifstream ifile;
-    ifile.open(dir);
-    if (ifile) {
+int takeInput(char *str) {
+    string buff;
+    char buf[MAXCOM];
+//    cout << typeid(buff).name() << endl;
+
+    cout << ">>> ";
+    getline(cin, buff);
+    strcpy(buf, buff.c_str());
+//    cout << typeid(buf).name() << endl;
+
+    if (strlen(buf) != 0) {
+//        add_history(buf);
+        strcpy(str, buf);
+        return 0;
+    } else {
         return 1;
-    } else {
-        return 0;
-    }
-}
-
-int filesCommands(char **parsed)
-{
-    int NoOfFilesCommands = 6, i, switchOwnArg = 0;
-    char *ListOfFilesCommands[NoOfFilesCommands];
-
-    ListOfFilesCommands[0] = "a"; //first Element
-    ListOfFilesCommands[1] = "b"; // most occurrence
-    ListOfFilesCommands[2] = "c"; // remove empty spaces
-    ListOfFilesCommands[3] = "d"; // uncommented files
-    ListOfFilesCommands[4] = "e"; // number of lines
-    ListOfFilesCommands[5] = "f"; // show first 10 line
-    int detected = 0;
-    for (i = 0; i < NoOfFilesCommands; i++) {
-        if (strcmp(parsed[0], ListOfFilesCommands[i]) == 0) {
-            switchOwnArg = i + 1;
-            detected = 1;
-            break;
-        }
-    }
-    if (!detected) {
-        return 0;
-    }
-    cout << "file: " << parsed[1];
-    if (fileExistence(parsed[1])) {
-        switch (switchOwnArg) {
-            case 1:
-                getFirstElement(parsed[1]);
-                return 1;
-            case 2:
-                mostOccurring(parsed[1]);
-                return 1;
-            case 3:
-                removeSpaces(parsed[1]);
-                return 1;
-            case 4:
-                uncommentLines(parsed[1]);
-                return 1;
-            case 5:
-                LineNumber(parsed[1]);
-                return 1;
-            case 6:
-                getTenFirstLine(parsed[1]);
-                return 1;
-                return 0;
-        }
-    } else {
-        cout << "File doesn't Found!" << endl;
     }
 }
 
@@ -295,20 +213,135 @@ void execArgs(char **parsed) {
         printf("\nFailed forking child..");
         return;
     } else if (pid == 0) {
-        cout << parsed[0];
-        if (filesCommands(parsed)) {
-//            cout << "sddvsd";
-        } else if (execvp(parsed[0], parsed) < 0) {
+        if (execvp(parsed[0], parsed) < 0) {
             printf("\nCould not execute command..");
-        } else {
-            cout << "command not found: " << parsed << endl;
         }
         exit(0);
-
     } else {
         // waiting for child to terminate
         wait(NULL);
         return;
+    }
+}
+
+void execArgsPiped(char **parsed, char **parsedpipe) {
+    // 0 is read end, 1 is write end
+    int pipefd[2];
+    pid_t p1, p2;
+
+    if (pipe(pipefd) < 0) {
+        printf("\nPipe could not be initialized");
+        return;
+    }
+    p1 = fork();
+    if (p1 < 0) {
+        printf("\nCould not fork");
+        return;
+    }
+
+    if (p1 == 0) {
+        // Child 1 executing..
+        // It only needs to write at the write end
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]);
+
+        if (execvp(parsed[0], parsed) < 0) {
+            printf("\nCould not execute command 1..");
+            exit(0);
+        }
+    } else {
+        // Parent executing
+        p2 = fork();
+
+        if (p2 < 0) {
+            printf("\nCould not fork");
+            return;
+        }
+
+        // Child 2 executing..
+        // It only needs to read at the read end
+        if (p2 == 0) {
+            close(pipefd[1]);
+            dup2(pipefd[0], STDIN_FILENO);
+            close(pipefd[0]);
+            if (execvp(parsedpipe[0], parsedpipe) < 0) {
+                printf("\nCould not execute command 2..");
+                exit(0);
+            }
+        } else {
+            // parent executing, waiting for two children
+            wait(NULL);
+            wait(NULL);
+        }
+    }
+}
+
+int ownCmdHandler(char **parsed) {
+    int NoOfOwnCmds = 7, i, switchOwnArg = 0;
+    char *ListOfOwnCmds[NoOfOwnCmds];
+    char *username;
+
+    ListOfOwnCmds[0] = "a";
+    ListOfOwnCmds[1] = "b";
+    ListOfOwnCmds[2] = "c";
+    ListOfOwnCmds[3] = "d";
+    ListOfOwnCmds[4] = "e";
+    ListOfOwnCmds[5] = "f";
+    ListOfOwnCmds[6] = "cd";
+    for (i = 0; i < NoOfOwnCmds; i++) {
+        if (strcmp(parsed[0], ListOfOwnCmds[i]) == 0) {
+            switchOwnArg = i + 1;
+            break;
+        }
+    }
+
+    switch (switchOwnArg) {
+        case 1:
+            getFirstElement(parsed[1]);
+            return 1;
+        case 2:
+            cout << parsed[1] << endl;
+            mostOccurring(parsed[1]);
+            return 1;
+        case 3:
+            removeSpaces(parsed[1]);
+            return 1;
+        case 4:
+            uncommentLines(parsed[1]);
+            return 1;
+        case 5:
+            lineNumber(parsed[1]);
+            return 1;
+        case 6:
+            getTenFirstLine(parsed[1]);
+            return 1;
+        case 7:
+            int chdir_Status;
+            chdir_Status = chdir(parsed[1]);
+            if (chdir_Status == -1) {
+                cout << "cd: no such file or directory: " << parsed[1] << endl;
+            }
+            return 1;
+        default:
+            break;
+    }
+
+    return 0;
+}
+
+int parsePipe(char *str, char **strpiped) {
+    int i;
+    for (i = 0; i < 2; i++) {
+        strpiped[i] = strsep(&str, "|");
+        if (strpiped[i] == NULL)
+            break;
+    }
+
+    if (strpiped[1] == NULL)
+        return 0; // returns zero if no pipe is found.
+    else {
+        return 1;
     }
 }
 
@@ -323,70 +356,56 @@ void parseSpace(char *str, char **parsed) {
         if (strlen(parsed[i]) == 0)
             i--;
     }
+
+//    for (int j = 0; j < i; j++)
+//        cout << "Parsed [" << j << "]: " << parsed[j] << endl;
+//        cout << parsed<< endl;
+
 }
 
+int processString(char *str, char **parsed, char **parsedpipe) {
 
-int ownCmdHandler(char** parsed) {
-    int NoOfOwnCmds = 4, i, switchOwnArg = 0;
-    char *ListOfOwnCmds[NoOfOwnCmds];
-    char *username;
+    char *strpiped[2];
+    int piped = 0;
 
-    ListOfOwnCmds[0] = "exit";
-    ListOfOwnCmds[1] = "cd";
-    ListOfOwnCmds[2] = "help";
-    ListOfOwnCmds[3] = "hello";
+    piped = parsePipe(str, strpiped);
 
-    for (i = 0; i < NoOfOwnCmds; i++) {
-        if (strcmp(parsed[0], ListOfOwnCmds[i]) == 0) {
-            switchOwnArg = i + 1;
-            break;
-        }
+    if (piped) {
+        parseSpace(strpiped[0], parsed);
+        parseSpace(strpiped[1], parsedpipe);
+
+    } else {
+
+        parseSpace(str, parsed);
     }
-
-    switch (switchOwnArg) {
-        case 1:
-            printf("\nGoodbye\n");
-            exit(0);
-        case 2:
-            chdir(parsed[1]);
-            return 1;
-        case 3:
-//            openHelp();
-            return 1;
-        case 4:
-            username = getenv("USER");
-            printf("\nHello %s.\nMind that this is "
-                   "not a place to play around."
-                   "\nUse help to know more..\n",
-                   username);
-            return 1;
-        default:
-            break;
-    }
-    return 0;
-}
-
-int processString(char *str, char **parsed) {
-
-//    char* strpiped[2];
-//    int piped = 0;
-
-//    piped = parsePipe(str, strpiped);
-
-//    if (piped) {
-//        parseSpace(strpiped[0], parsed);
-//        parseSpace(strpiped[1], parsedpipe);
-//
-//    }
-//    else {
-
-    parseSpace(str, parsed);
-//    }
 
     if (ownCmdHandler(parsed))
         return 0;
     else
-        return 1;
+        return 1 + piped;
 }
 
 
+char inputString[MAXCOM], *parsedArgs[MAXLIST];
+char *parsedArgsPiped[MAXLIST];
+
+int main() {
+
+    int execFlag = 0;
+//    init_shell();
+    while (true) {
+        showDir();
+        if (takeInput(inputString))
+            continue;
+
+        execFlag = processString(inputString,parsedArgs, parsedArgsPiped);
+
+        if (execFlag == 1)
+            execArgs(parsedArgs);
+
+        if (execFlag == 2)
+            execArgsPiped(parsedArgs, parsedArgsPiped);
+
+    }
+    return 0;
+}
