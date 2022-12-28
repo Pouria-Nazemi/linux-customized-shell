@@ -12,6 +12,7 @@
 #include<unistd.h>
 #include<sys/types.h>
 #include<sys/wait.h>
+#include <signal.h>
 #include<readline/readline.h>
 #include<readline/history.h>
 
@@ -42,7 +43,7 @@ using namespace std;
 
 void init_shell() {
     ofstream myF;
-    myF.open("History.txt", ios::out);
+    myF.open("cmake-build-debug/History.txt", ios::out);
     myF.close();
     clear();
     cout << "\n\n****************************************";
@@ -51,7 +52,7 @@ void init_shell() {
     char *username = getenv("USER");
     cout << "\n\n\nUSER is: " << username;
     cout << "\n";
-    sleep(2);
+    sleep(0);
     clear();
 }
 
@@ -82,12 +83,13 @@ void removeSpaces(string address) {
         myF.open(address, ios::out);
         myF << allLines;
         myF.close();
-        cout << "allLines: " << allLines << endl;
-        cout << "Done!" << endl;
+//        cout << "allLines: " << allLines << endl;
+//        cout << "Done!" << endl;
     } else {
         cout << "Can't open '" << address << "'" << endl;
     }
 }
+
 
 void mostOccurring(string address) {
     fstream myF;
@@ -159,7 +161,6 @@ void getFirstElement(string address) {
 void getTenFirstLine(string address) {
     fstream newfile;
     newfile.open(address, ios::in);
-
     string line;
     int count = 0;
 
@@ -172,6 +173,8 @@ void getTenFirstLine(string address) {
             }
         }
         newfile.close();
+    } else {
+        cout << "Can't open '" << address << "'" << endl;
     }
 }
 
@@ -194,17 +197,18 @@ int takeInput(char *str) {
     char buf[MAXCOM];
 //    cout << typeid(buff).name() << endl;
 
-    cout << ">>> ";
-    getline(cin, buff);
+//    cout << ">>> ";
+//    getline(cin, buff);
+    buff = readline("\n>>> ");
     strcpy(buf, buff.c_str());
 //    cout << typeid(buf).name() << endl;
 
     if (strlen(buf) != 0) {
         ofstream myF;
-        myF.open("History.txt", ios::app);
+        myF.open("cmake-build-debug/History.txt", ios::app);
         myF << buf << endl;
         myF.close();
-//        add_history(buf);
+        add_history(buf);
         strcpy(str, buf);
         return 0;
     } else {
@@ -285,17 +289,19 @@ void execArgsPiped(char **parsed, char **parsedpipe) {
 }
 
 int ownCmdHandler(char **parsed) {
-    int NoOfOwnCmds = 7, i, switchOwnArg = 0;
+    int NoOfOwnCmds = 8, i, switchOwnArg = 0;
     char *ListOfOwnCmds[NoOfOwnCmds];
     char *username;
 
-    ListOfOwnCmds[0] = "a";
-    ListOfOwnCmds[1] = "b";
-    ListOfOwnCmds[2] = "c";
-    ListOfOwnCmds[3] = "d";
-    ListOfOwnCmds[4] = "e";
-    ListOfOwnCmds[5] = "f";
+    ListOfOwnCmds[0] = "FE";
+    ListOfOwnCmds[1] = "MO";
+    ListOfOwnCmds[2] = "RS";
+    ListOfOwnCmds[3] = "SUL";
+    ListOfOwnCmds[4] = "LC";
+    ListOfOwnCmds[5] = "FTL";
     ListOfOwnCmds[6] = "cd";
+    ListOfOwnCmds[7] = "exit";
+
     for (i = 0; i < NoOfOwnCmds; i++) {
         if (strcmp(parsed[0], ListOfOwnCmds[i]) == 0) {
             switchOwnArg = i + 1;
@@ -330,12 +336,15 @@ int ownCmdHandler(char **parsed) {
                 if (parsed[1] != NULL) {
                     string varr = parsed[1];
                     cout << "cd: no such file or directory: " << parsed[1] << endl;
-                } else{
+                } else {
                     cout << "cd: no such file or directory" << endl;
                 }
             }
 
             return 1;
+        case 8:
+            cout << "Good Bye" << endl;
+            exit(0);
         default:
             break;
     }
@@ -361,7 +370,9 @@ int parsePipe(char *str, char **strpiped) {
 void parseSpace(char *str, char **parsed) {
     int i;
     string st = str;
-    if (st.rfind("cd", 0) == 0) {
+    if ((st.rfind("cd", 0) == 0) || (st.rfind("a", 0) == 0) || st.rfind("b", 0) == 0 || (st.rfind("c", 0) == 0) ||
+        (st.rfind("d", 0) == 0) ||
+        (st.rfind("e", 0) == 0) || (st.rfind("f", 0) == 0)) {
         parsed[0] = strsep(&str, " ");
         parsed[1] = str;
 //        cout << "the command in cd" << endl;
@@ -404,10 +415,15 @@ int processString(char *str, char **parsed, char **parsedpipe) {
 char inputString[MAXCOM], *parsedArgs[MAXLIST];
 char *parsedArgsPiped[MAXLIST];
 
-int main() {
+void siginHandler(int sig_num) {
+    showDir();
+    fflush(stdout);
+}
 
+int main() {
     int execFlag = 0;
-    init_shell();
+//    init_shell();
+    signal(SIGINT, siginHandler);
     while (true) {
         showDir();
         if (takeInput(inputString))
