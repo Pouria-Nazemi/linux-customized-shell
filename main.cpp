@@ -109,35 +109,36 @@ void mostOccurring(string address) {
         printf("\nFailed forking child..");
         return;
     } else if (pid == 0) {
-		fstream myF;
-		myF.open(address, ios::in);
-		string allLines;
-		string line;
-		if (myF.is_open()) {
-			while (getline(myF, line)) {
-				allLines += line;
-				allLines.push_back('\n');
-			}
-			myF.close();
+        fstream myF;
+        myF.open(address, ios::in);
+        string allLines;
+        string line;
+        if (myF.is_open()) {
+            while (getline(myF, line)) {
+                allLines += line;
+                allLines.push_back('\n');
+            }
+            myF.close();
 
-			istringstream input(allLines);
-			map<string, int> count;
-			string word;
-			decltype(count)::const_iterator most_occurring;
-			while (input >> word) {
+            istringstream input(allLines);
+            map<string, int> count;
+            string word;
+            decltype(count)::const_iterator most_occurring;
+            while (input >> word) {
 
-				auto itr = count.emplace(word, 0).first;
-				++itr->second;
-				if (count.size() == 1 || itr->second > most_occurring->second)
-					most_occurring = itr;
-			}
-			cout << "The Word '";
-			cout << most_occurring->first << "' is repeated ";
-			cout << most_occurring->second << " times." << endl;
+                auto itr = count.emplace(word, 0).first;
+                ++itr->second;
+                if (count.size() == 1 || itr->second > most_occurring->second)
+                    most_occurring = itr;
+            }
+            cout << "The Word '";
+            cout << most_occurring->first << "' is repeated ";
+            cout << most_occurring->second << " times." << endl;
 
-		} else {
-			cout << "Can't open '" << address << "'" << endl;
-		}
+        } else {
+            cout << "Can't open '" << address << "'" << endl;
+        }
+    }
 		else {
         wait(NULL);
         return;
@@ -150,7 +151,7 @@ void mostOccurring(string address) {
 		if (pid == -1) {
         printf("\nFailed forking child..");
         return;
-    } else if (pid == 0) {
+        } else if (pid == 0) {
 			int linec = 0;
 			ifstream myF(address);
 			string line;
@@ -165,7 +166,7 @@ void mostOccurring(string address) {
 
 			cout << "number of lines: " << linec << endl;
 		}
-	}
+
 	else {
         wait(NULL);
         return;
