@@ -103,148 +103,103 @@ void removeSpaces(string address) {
 
 
 void mostOccurring(string address) {
-	if (pid == -1) {
-        printf("\nFailed forking child..");
-        return;
-    } else if (pid == 0) {
-		fstream myF;
-		myF.open(address, ios::in);
-		string allLines;
-		string line;
-		if (myF.is_open()) {
-			while (getline(myF, line)) {
-				allLines += line;
-				allLines.push_back('\n');
-			}
-			myF.close();
+    fstream myF;
+    myF.open(address, ios::in);
+    string allLines;
+    string line;
+    if (myF.is_open()) {
+        while (getline(myF, line)) {
+            allLines += line;
+            allLines.push_back('\n');
+        }
+        myF.close();
 
-			istringstream input(allLines);
-			map<string, int> count;
-			string word;
-			decltype(count)::const_iterator most_occurring;
-			while (input >> word) {
+        istringstream input(allLines);
+        map<string, int> count;
+        string word;
+        decltype(count)::const_iterator most_occurring;
+        while (input >> word) {
 
-				auto itr = count.emplace(word, 0).first;
-				++itr->second;
-				if (count.size() == 1 || itr->second > most_occurring->second)
-					most_occurring = itr;
-			}
-			cout << "The Word '";
-			cout << most_occurring->first << "' is repeated ";
-			cout << most_occurring->second << " times." << endl;
+            auto itr = count.emplace(word, 0).first;
+            ++itr->second;
+            if (count.size() == 1 || itr->second > most_occurring->second)
+                most_occurring = itr;
+        }
+        cout << "The Word '";
+        cout << most_occurring->first << "' is repeated ";
+        cout << most_occurring->second << " times." << endl;
 
-		} else {
-			cout << "Can't open '" << address << "'" << endl;
-		}
-		else {
-        wait(NULL);
-        return;
-    }
-	}
-
-	void lineNumber(string address) {
-		if (pid == -1) {
-        printf("\nFailed forking child..");
-        return;
-    } else if (pid == 0) {
-			int linec = 0;
-			ifstream myF(address);
-			string line;
-			if (myF.is_open()) {
-				while (!myF.eof()) {
-					getline(myF, line);
-					// cout << line << endl;
-					linec++;
-				}
-				myF.close();
-			}
-
-			cout << "number of lines: " << linec << endl;
-		}
-	}
-	else {
-        wait(NULL);
-        return;
+    } else {
+        cout << "Can't open '" << address << "'" << endl;
     }
 }
 
+void lineNumber(string address) {
+    int linec = 0;
+    ifstream myF(address);
+    string line;
+    if (myF.is_open()) {
+        while (!myF.eof()) {
+            getline(myF, line);
+            // cout << line << endl;
+            linec++;
+        }
+        myF.close();
+    }
+
+    cout << "number of lines: " << linec << endl;
+}
+
 void getFirstElement(string address) {
-	if (pid == -1) {
-        printf("\nFailed forking child..");
-        return;
-    } else if (pid == 0) {
-		fstream newfile;
-		newfile.open(address, ios::in);
+    fstream newfile;
+    newfile.open(address, ios::in);
 
-		string line;
+    string line;
 
-		if (newfile.is_open()) {
-			while (getline(newfile, line, '\n')) {
-				char *input = &line[0];
-				char *firstWord = strtok(input, " ");
-				cout << firstWord << endl;
-			}
-			newfile.close();
-		} else {
-			cout << "Can't open '" << address << "'" << endl;
+    if (newfile.is_open()) {
+        while (getline(newfile, line, '\n')) {
+            char *input = &line[0];
+            char *firstWord = strtok(input, " ");
+            cout << firstWord << endl;
+        }
+        newfile.close();
+    } else {
+        cout << "Can't open '" << address << "'" << endl;
 
-		}
-	}
-	else {
-        wait(NULL);
-        return;
     }
 }
 
 void getTenFirstLine(string address) {
-	if (pid == -1) {
-        printf("\nFailed forking child..");
-        return;
-    } else if (pid == 0) {
-		fstream newfile;
-		newfile.open(address, ios::in);
-		string line;
-		int count = 0;
+    fstream newfile;
+    newfile.open(address, ios::in);
+    string line;
+    int count = 0;
 
-		if (newfile.is_open()) {
-			while (getline(newfile, line, '\n')) {
-				cout << line << endl;
-				count++;
-				if (count == 10) {
-					break;
-				}
-			}
-			newfile.close();
-		} else {
-			cout << "Can't open '" << address << "'" << endl;
-		}
-	}
-	else {
-        wait(NULL);
-        return;
+    if (newfile.is_open()) {
+        while (getline(newfile, line, '\n')) {
+            cout << line << endl;
+            count++;
+            if (count == 10) {
+                break;
+            }
+        }
+        newfile.close();
+    } else {
+        cout << "Can't open '" << address << "'" << endl;
     }
 }
 
 void uncommentLines(string address) {
-	if (pid == -1) {
-        printf("\nFailed forking child..");
-        return;
-    } else if (pid == 0) {
-		fstream newfile;
-		newfile.open(address, ios::in);
+    fstream newfile;
+    newfile.open(address, ios::in);
 
-		string line;
-		if (newfile.is_open()) {
-			while (getline(newfile, line, '\n')) {
-				if (line.rfind("#", 0) == -1)
-					cout << line << endl;
-			}
-			newfile.close();
-		}
-	}
-	else {
-        wait(NULL);
-        return;
+    string line;
+    if (newfile.is_open()) {
+        while (getline(newfile, line, '\n')) {
+            if (line.rfind("#", 0) == -1)
+                cout << line << endl;
+        }
+        newfile.close();
     }
 }
 
