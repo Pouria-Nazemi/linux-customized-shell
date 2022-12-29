@@ -22,29 +22,15 @@
 #define clear() printf("\033[H\033[J")
 using namespace std;
 
-//void getFirstElement(string address);
-
-//void getTenFirstLine(string address);
-//
-//void uncommentLines(string address);
-//
-//void removeSpaces(string address);
-//
-//void mostOccurring(string address);
-//
-//void lineNumber(string address);
-//
-//void showDir();
-//
-//void init_shell();
-
-//---------------------------  Main Function --------------------------------------------------------
-
-
 void init_shell() {
-    ofstream myF;
-    myF.open("cmake-build-debug/History.txt", ios::out);
-    myF.close();
+    ofstream myHF;
+    myHF.open("/home/ali/Desktop/Term5/Operation_System/Project/linux-customized-shell/cmake-build-debug/History.txt",
+              ios::out);
+    if (myHF.is_open()) {
+        myHF.close();
+    } else {
+        cout << "Can't open 'cmake-build-debug/History.txt' " << endl;
+    }
     clear();
     cout << "\n\n****************************************";
     cout << "*\n*\n*\n*\t\tPOAL SHELL\t\t";
@@ -52,7 +38,7 @@ void init_shell() {
     char *username = getenv("USER");
     cout << "\n\n\nUSER is: " << username;
     cout << "\n";
-    sleep(0);
+    sleep(1);
     clear();
 }
 
@@ -63,39 +49,38 @@ void showDir() {
 }
 
 void removeSpaces(string address) {
-	pid_t pid = fork();
+    pid_t pid = fork();
 
     if (pid == -1) {
         printf("\nFailed forking child..");
         return;
     } else if (pid == 0) {
-		fstream myF;
-		myF.open(address, ios::in);
-		string allLines;
-		string line;
-		if (myF.is_open()) {
-			while (getline(myF, line)) {
-				allLines += line;
-				allLines.push_back('\n');
-			}
-			myF.close();
+        fstream myF;
+        myF.open(address, ios::in);
+        string allLines;
+        string line;
+        if (myF.is_open()) {
+            while (getline(myF, line)) {
+                allLines += line;
+                allLines.push_back('\n');
+            }
+            myF.close();
 
-			allLines.erase(remove_if(allLines.begin(), allLines.end(),
-									 [](char c) {
-										 return (c == ' ' || c == '\n' || c == '\t' || c == '\v' || c == '\f');
-									 }),
-						   allLines.end());
-			// cout << allLines;
-			myF.open(address, ios::out);
-			myF << allLines;
-			myF.close();
-	//        cout << "allLines: " << allLines << endl;
-	//        cout << "Done!" << endl;
-		} else {
-			cout << "Can't open '" << address << "'" << endl;
-    }
-	}
-	else {
+            allLines.erase(remove_if(allLines.begin(), allLines.end(),
+                                     [](char c) {
+                                         return (c == ' ' || c == '\n' || c == '\t' || c == '\v' || c == '\f');
+                                     }),
+                           allLines.end());
+            // cout << allLines;
+            myF.open(address, ios::out);
+            myF << allLines;
+            myF.close();
+            //        cout << "allLines: " << allLines << endl;
+            //        cout << "Done!" << endl;
+        } else {
+            cout << "Can't open '" << address << "'" << endl;
+        }
+    } else {
         wait(NULL);
         return;
     }
@@ -103,9 +88,9 @@ void removeSpaces(string address) {
 
 
 void mostOccurring(string address) {
-	pid_t pid = fork();
-	
-	if (pid == -1) {
+    pid_t pid = fork();
+
+    if (pid == -1) {
         printf("\nFailed forking child..");
         return;
     } else if (pid == 0) {
@@ -138,122 +123,116 @@ void mostOccurring(string address) {
         } else {
             cout << "Can't open '" << address << "'" << endl;
         }
-    }
-		else {
+    } else {
         wait(NULL);
         return;
     }
 }
 
-	void lineNumber(string address) {
-		pid_t pid = fork();
-		
-		if (pid == -1) {
+void lineNumber(string address) {
+    pid_t pid = fork();
+
+    if (pid == -1) {
         printf("\nFailed forking child..");
         return;
-        } else if (pid == 0) {
-			int linec = 0;
-			ifstream myF(address);
-			string line;
-			if (myF.is_open()) {
-				while (!myF.eof()) {
-					getline(myF, line);
-					// cout << line << endl;
-					linec++;
-				}
-				myF.close();
-			}
+    } else if (pid == 0) {
+        int linec = 0;
+        ifstream myF(address);
+        string line;
+        if (myF.is_open()) {
+            while (!myF.eof()) {
+                getline(myF, line);
+                // cout << line << endl;
+                linec++;
+            }
+            myF.close();
+        }
 
-			cout << "number of lines: " << linec << endl;
-		}
-
-	else {
+        cout << "number of lines: " << linec << endl;
+    } else {
         wait(NULL);
         return;
     }
 }
 
 void getFirstElement(string address) {
-	pid_t pid = fork();
-	
-	if (pid == -1) {
+    pid_t pid = fork();
+
+    if (pid == -1) {
         printf("\nFailed forking child..");
         return;
     } else if (pid == 0) {
-		fstream newfile;
-		newfile.open(address, ios::in);
+        fstream newfile;
+        newfile.open(address, ios::in);
 
-		string line;
+        string line;
 
-		if (newfile.is_open()) {
-			while (getline(newfile, line, '\n')) {
-				char *input = &line[0];
-				char *firstWord = strtok(input, " ");
-				cout << firstWord << endl;
-			}
-			newfile.close();
-		} else {
-			cout << "Can't open '" << address << "'" << endl;
+        if (newfile.is_open()) {
+            while (getline(newfile, line, '\n')) {
+                char *input = &line[0];
+                char *firstWord = strtok(input, " ");
+                cout << firstWord << endl;
+            }
+            newfile.close();
+        } else {
+            cout << "Can't open '" << address << "'" << endl;
 
-		}
-	}
-	else {
+        }
+    } else {
         wait(NULL);
         return;
     }
 }
 
 void getTenFirstLine(string address) {
-	pid_t pid = fork();
-	
-	if (pid == -1) {
+    pid_t pid = fork();
+
+    if (pid == -1) {
         printf("\nFailed forking child..");
         return;
     } else if (pid == 0) {
-		fstream newfile;
-		newfile.open(address, ios::in);
-		string line;
-		int count = 0;
+        fstream newfile;
+        newfile.open(address, ios::in);
+        string line;
+        int count = 0;
 
-		if (newfile.is_open()) {
-			while (getline(newfile, line, '\n')) {
-				cout << line << endl;
-				count++;
-				if (count == 10) {
-					break;
-				}
-			}
-			newfile.close();
-		} else {
-			cout << "Can't open '" << address << "'" << endl;
-		}
-	}
-	else {
+        if (newfile.is_open()) {
+            while (getline(newfile, line, '\n')) {
+                cout << line << endl;
+                count++;
+                if (count == 10) {
+                    break;
+                }
+            }
+            newfile.close();
+        } else {
+            cout << "Can't open '" << address << "'" << endl;
+        }
+    } else {
         wait(NULL);
         return;
     }
 }
 
 void uncommentLines(string address) {
-	pid_t pid = fork();
-	
-	if (pid == -1) {
+    pid_t pid = fork();
+
+    if (pid == -1) {
         printf("\nFailed forking child..");
         return;
     } else if (pid == 0) {
-		fstream newfile;
-		newfile.open(address, ios::in);
+        fstream newfile;
+        newfile.open(address, ios::in);
 
-		string line;
-		if (newfile.is_open()) {
-			while (getline(newfile, line, '\n')) {
-				if (line.rfind("#", 0) == -1)
-					cout << line << endl;
-			}
-			newfile.close();
-		}
-	}
-	else {
+        string line;
+        if (newfile.is_open()) {
+            while (getline(newfile, line, '\n')) {
+                if (line.rfind("#", 0) == -1)
+                    cout << line << endl;
+            }
+            newfile.close();
+        }
+    } else {
         wait(NULL);
         return;
     }
@@ -262,20 +241,24 @@ void uncommentLines(string address) {
 int takeInput(char *str) {
     string buff;
     char buf[MAXCOM];
-//    cout << typeid(buff).name() << endl;
 
-//    cout << ">>> ";
-//    getline(cin, buff);
-    buff = readline("\n>>> ");
+//    cout << ">>> ";       //todo for debugging uncomment this line
+//    getline(cin, buff); //todo for debugging uncomment this line
+    buff = readline("\n>>> ");  //todo for debugging comment this line
     strcpy(buf, buff.c_str());
-//    cout << typeid(buf).name() << endl;
 
     if (strlen(buf) != 0) {
-        ofstream myF;
-        myF.open("cmake-build-debug/History.txt", ios::app);
-        myF << buf << endl;
-        myF.close();
-        add_history(buf);
+        ofstream myHF;
+        myHF.open(
+                "/home/ali/Desktop/Term5/Operation_System/Project/linux-customized-shell/cmake-build-debug/History.txt",
+                ios::app);
+        if (myHF.is_open()) {
+            myHF << buf << endl;
+            myHF.close();
+        } else {
+            cout << "Can't open 'cmake-build-debug/History.txt' " << endl;
+        }
+        add_history(buf);   //todo for debugging comment this line
         strcpy(str, buf);
         return 0;
     } else {
@@ -411,7 +394,7 @@ int ownCmdHandler(char **parsed) {
             return 1;
         case 8:
             cout << "Good Bye" << endl;
-            exit(0);
+            exit(0); //TODO have a bug about forks and exit the program
         default:
             break;
     }
@@ -489,7 +472,7 @@ void siginHandler(int sig_num) {
 
 int main() {
     int execFlag = 0;
-//    init_shell();
+    init_shell();
     signal(SIGINT, siginHandler);
     while (true) {
         showDir();

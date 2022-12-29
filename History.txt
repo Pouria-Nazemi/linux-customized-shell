@@ -1,8 +1,0 @@
-nano svsd.txt
-ping google.com
-sleep 50
-nano
-ping google.com
-ping
-ping google.com
-exit
