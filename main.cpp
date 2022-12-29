@@ -103,6 +103,8 @@ void removeSpaces(string address) {
 
 
 void mostOccurring(string address) {
+	pid_t pid = fork();
+	
 	if (pid == -1) {
         printf("\nFailed forking child..");
         return;
@@ -140,9 +142,11 @@ void mostOccurring(string address) {
         wait(NULL);
         return;
     }
-	}
+}
 
 	void lineNumber(string address) {
+		pid_t pid = fork();
+		
 		if (pid == -1) {
         printf("\nFailed forking child..");
         return;
@@ -169,6 +173,8 @@ void mostOccurring(string address) {
 }
 
 void getFirstElement(string address) {
+	pid_t pid = fork();
+	
 	if (pid == -1) {
         printf("\nFailed forking child..");
         return;
@@ -197,6 +203,8 @@ void getFirstElement(string address) {
 }
 
 void getTenFirstLine(string address) {
+	pid_t pid = fork();
+	
 	if (pid == -1) {
         printf("\nFailed forking child..");
         return;
@@ -226,6 +234,8 @@ void getTenFirstLine(string address) {
 }
 
 void uncommentLines(string address) {
+	pid_t pid = fork();
+	
 	if (pid == -1) {
         printf("\nFailed forking child..");
         return;
