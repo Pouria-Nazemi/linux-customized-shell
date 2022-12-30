@@ -19,7 +19,6 @@
 #define MAXCOM 1000
 #define MAXLIST 100
 
-#define clear() printf("\033[H\033[J")
 using namespace std;
 
 void init_shell() {
@@ -29,17 +28,18 @@ void init_shell() {
     if (myHF.is_open()) {
         myHF.close();
     } else {
-        cout << "Can't open 'cmake-build-debug/History.txt' " << endl;
+        cerr << "Can't open 'cmake-build-debug/History.txt' " << endl;
     }
-    clear();
+    system("clear");
     cout << "\n\n****************************************";
-    cout << "*\n*\n*\n*\t\t SHELL\t\t";
+    cout << "*\n*\n*\n*\t\t POAL SHELL\t\t";
     cout << "\n*\n*\n*\n*****************************************";
     char *username = getenv("USER");
     cout << "\n\n\nUSER is: " << username;
     cout << "\n";
-    sleep(1);
-    clear();
+    sleep(1.5);
+    system("clear");
+
 }
 
 void showDir() {
@@ -52,7 +52,7 @@ void removeSpaces(string address) {
     pid_t pid = fork();
 
     if (pid == -1) {
-        printf("\nFailed forking child..");
+        cerr << "\nFailed forking child.." << endl;
         return;
     } else if (pid == 0) {
         fstream myF;
@@ -75,10 +75,9 @@ void removeSpaces(string address) {
             myF.open(address, ios::out);
             myF << allLines;
             myF.close();
-            //        cout << "allLines: " << allLines << endl;
-            //        cout << "Done!" << endl;
+            cout << allLines << endl;
         } else {
-            cout << "Can't open '" << address << "'" << endl;
+            cerr << "Can't open '" << address << "'" << endl;
         }
     } else {
         wait(NULL);
@@ -91,7 +90,7 @@ void mostOccurring(string address) {
     pid_t pid = fork();
 
     if (pid == -1) {
-        printf("\nFailed forking child..");
+        cerr << "\nFailed forking child.." << endl;
         return;
     } else if (pid == 0) {
         fstream myF;
@@ -121,7 +120,7 @@ void mostOccurring(string address) {
             cout << most_occurring->second << " times." << endl;
 
         } else {
-            cout << "Can't open '" << address << "'" << endl;
+            cerr << "Can't open '" << address << "'" << endl;
         }
     } else {
         wait(NULL);
@@ -133,7 +132,7 @@ void lineNumber(string address) {
     pid_t pid = fork();
 
     if (pid == -1) {
-        printf("\nFailed forking child..");
+        cerr << "\nFailed forking child.." << endl;
         return;
     } else if (pid == 0) {
         int linec = 0;
@@ -159,7 +158,7 @@ void getFirstElement(string address) {
     pid_t pid = fork();
 
     if (pid == -1) {
-        printf("\nFailed forking child..");
+        cerr << "\nFailed forking child.." << endl;
         return;
     } else if (pid == 0) {
         fstream newfile;
@@ -175,7 +174,7 @@ void getFirstElement(string address) {
             }
             newfile.close();
         } else {
-            cout << "Can't open '" << address << "'" << endl;
+            cerr << "Can't open '" << address << "'" << endl;
 
         }
     } else {
@@ -188,7 +187,7 @@ void getTenFirstLine(string address) {
     pid_t pid = fork();
 
     if (pid == -1) {
-        printf("\nFailed forking child..");
+        cerr << "\nFailed forking child.." << endl;
         return;
     } else if (pid == 0) {
         fstream newfile;
@@ -206,7 +205,7 @@ void getTenFirstLine(string address) {
             }
             newfile.close();
         } else {
-            cout << "Can't open '" << address << "'" << endl;
+            cerr << "Can't open '" << address << "'" << endl;
         }
     } else {
         wait(NULL);
@@ -218,7 +217,7 @@ void uncommentLines(string address) {
     pid_t pid = fork();
 
     if (pid == -1) {
-        printf("\nFailed forking child..");
+        cerr << "\nFailed forking child.." << endl;
         return;
     } else if (pid == 0) {
         fstream newfile;
@@ -256,7 +255,7 @@ int commandInput(char *str) {
             myHF << buf << endl;
             myHF.close();
         } else {
-            cout << "Can't open 'cmake-build-debug/History.txt' " << endl;
+            cerr << "Can't open 'cmake-build-debug/History.txt' " << endl;
         }
         add_history(buf);   //todo for debugging comment this line
         strcpy(str, buf);
@@ -271,11 +270,11 @@ void execArgs(char **parsed) {
     pid_t pid = fork();
 
     if (pid == -1) {
-        printf("\nFailed forking child..");
+        cerr << "\nFailed forking child.." << endl;
         return;
     } else if (pid == 0) {
         if (execvp(parsed[0], parsed) < 0) {
-            printf("\nCould not execute command.");
+            cerr << "\nCould not execute command." << endl;
         }
         exit(0);
     } else {
@@ -290,12 +289,12 @@ void execArgsPiped(char **parsed, char **parsedpipe) {
     pid_t p1, p2;
 
     if (pipe(pipefd) < 0) {
-        printf("\nPipe could not be initialized");
+        cerr << "\nPipe could not be initialized" << endl;
         return;
     }
     p1 = fork();
     if (p1 < 0) {
-        printf("\nCould not fork");
+        cerr << "\nCould not fork" << endl;
         return;
     }
 
@@ -307,7 +306,7 @@ void execArgsPiped(char **parsed, char **parsedpipe) {
         close(pipefd[1]);
 
         if (execvp(parsed[0], parsed) < 0) {
-            printf("\nCould not execute command 1.");
+            cerr << "\nCould not execute command 1." << endl;
             exit(0);
         }
     } else {
@@ -315,7 +314,7 @@ void execArgsPiped(char **parsed, char **parsedpipe) {
         p2 = fork();
 
         if (p2 < 0) {
-            printf("\nCould not fork");
+            cerr << "\nCould not fork" << endl;
             return;
         }
 
@@ -326,7 +325,7 @@ void execArgsPiped(char **parsed, char **parsedpipe) {
             dup2(pipefd[0], STDIN_FILENO);
             close(pipefd[0]);
             if (execvp(parsedpipe[0], parsedpipe) < 0) {
-                printf("\nCould not execute command 2..");
+                cerr << "\nCould not execute command 2.." << endl;
                 exit(0);
             }
         } else {
@@ -345,7 +344,7 @@ int appendedCommandsHandler(char **parsed) {
     ListOfAppendedCommands[0] = "FE";
     ListOfAppendedCommands[1] = "MO";
     ListOfAppendedCommands[2] = "RS";
-    ListOfAppendedCommands[3] = "SUL";
+    ListOfAppendedCommands[3] = "DUL";
     ListOfAppendedCommands[4] = "LC";
     ListOfAppendedCommands[5] = "FTL";
     ListOfAppendedCommands[6] = "cd";
@@ -384,9 +383,9 @@ int appendedCommandsHandler(char **parsed) {
             if (chdir_Status == -1) {
                 if (parsed[1] != NULL) {
                     string varr = parsed[1];
-                    cout << "cd: no such file or directory: " << parsed[1] << endl;
+                    cerr << "cd: no such file or directory: " << parsed[1] << endl;
                 } else {
-                    cout << "cd: no such file or directory" << endl;
+                    cerr << "cd: no such file or directory" << endl;
                 }
             }
 
