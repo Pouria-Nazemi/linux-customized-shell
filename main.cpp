@@ -33,7 +33,7 @@ void init_shell() {
     }
     clear();
     cout << "\n\n****************************************";
-    cout << "*\n*\n*\n*\t\tPOAL SHELL\t\t";
+    cout << "*\n*\n*\n*\t\t SHELL\t\t";
     cout << "\n*\n*\n*\n*****************************************";
     char *username = getenv("USER");
     cout << "\n\n\nUSER is: " << username;
@@ -238,7 +238,7 @@ void uncommentLines(string address) {
     }
 }
 
-int takeInput(char *str) {
+int commandInput(char *str) {
     string buff;
     char buf[MAXCOM];
 
@@ -275,11 +275,10 @@ void execArgs(char **parsed) {
         return;
     } else if (pid == 0) {
         if (execvp(parsed[0], parsed) < 0) {
-            printf("\nCould not execute command..");
+            printf("\nCould not execute command.");
         }
         exit(0);
     } else {
-        // waiting for child to terminate
         wait(NULL);
         return;
     }
@@ -308,7 +307,7 @@ void execArgsPiped(char **parsed, char **parsedpipe) {
         close(pipefd[1]);
 
         if (execvp(parsed[0], parsed) < 0) {
-            printf("\nCould not execute command 1..");
+            printf("\nCould not execute command 1.");
             exit(0);
         }
     } else {
@@ -338,28 +337,28 @@ void execArgsPiped(char **parsed, char **parsedpipe) {
     }
 }
 
-int ownCmdHandler(char **parsed) {
-    int NoOfOwnCmds = 8, i, switchOwnArg = 0;
-    char *ListOfOwnCmds[NoOfOwnCmds];
+int appendedCommandsHandler(char **parsed) {
+    int NoOfAppendedCommands = 8, i, switchArg = 0;
+    char *ListOfAppendedCommands[NoOfAppendedCommands];
     char *username;
 
-    ListOfOwnCmds[0] = "FE";
-    ListOfOwnCmds[1] = "MO";
-    ListOfOwnCmds[2] = "RS";
-    ListOfOwnCmds[3] = "SUL";
-    ListOfOwnCmds[4] = "LC";
-    ListOfOwnCmds[5] = "FTL";
-    ListOfOwnCmds[6] = "cd";
-    ListOfOwnCmds[7] = "exit";
+    ListOfAppendedCommands[0] = "FE";
+    ListOfAppendedCommands[1] = "MO";
+    ListOfAppendedCommands[2] = "RS";
+    ListOfAppendedCommands[3] = "SUL";
+    ListOfAppendedCommands[4] = "LC";
+    ListOfAppendedCommands[5] = "FTL";
+    ListOfAppendedCommands[6] = "cd";
+    ListOfAppendedCommands[7] = "exit";
 
-    for (i = 0; i < NoOfOwnCmds; i++) {
-        if (strcmp(parsed[0], ListOfOwnCmds[i]) == 0) {
-            switchOwnArg = i + 1;
+    for (i = 0; i < NoOfAppendedCommands; i++) {
+        if (strcmp(parsed[0], ListOfAppendedCommands[i]) == 0) {
+            switchArg = i + 1;
             break;
         }
     }
 
-    switch (switchOwnArg) {
+    switch (switchArg) {
         case 1:
             getFirstElement(parsed[1]);
             return 1;
@@ -420,9 +419,9 @@ int parsePipe(char *str, char **strpiped) {
 void parseSpace(char *str, char **parsed) {
     int i;
     string st = str;
-    if ((st.rfind("cd", 0) == 0) || (st.rfind("a", 0) == 0) || st.rfind("b", 0) == 0 || (st.rfind("c", 0) == 0) ||
-        (st.rfind("d", 0) == 0) ||
-        (st.rfind("e", 0) == 0) || (st.rfind("f", 0) == 0)) {
+    if ((st.rfind("cd", 0) == 0) || (st.rfind("FE", 0) == 0) || st.rfind("MO", 0) == 0 || (st.rfind("RS", 0) == 0) ||
+        (st.rfind("SUL", 0) == 0) ||
+        (st.rfind("LC", 0) == 0) || (st.rfind("FTL", 0) == 0)) {
         parsed[0] = strsep(&str, " ");
         parsed[1] = str;
 //        cout << "the command in cd" << endl;
@@ -455,7 +454,7 @@ int processString(char *str, char **parsed, char **parsedpipe) {
         parseSpace(str, parsed);
     }
 
-    if (ownCmdHandler(parsed))
+    if (appendedCommandsHandler(parsed))
         return 0;
     else
         return 1 + piped;
@@ -476,7 +475,7 @@ int main() {
     signal(SIGINT, siginHandler);
     while (true) {
         showDir();
-        if (takeInput(inputString))
+        if (commandInput(inputString))
             continue;
 
         execFlag = processString(inputString, parsedArgs, parsedArgsPiped);
